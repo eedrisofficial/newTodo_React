@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { getLocalStorage, setLocalStorage } from "./Utils/local-storage";
 import IsLoading from "./Components/IsLoading";
 import TodoList from "./Components/TodoList";
+import Swal from "sweetalert2";
 
 const todo_ls_name = process.env.REACT_APP_TODO_LOCAL_STORAGE_NAME;
 
@@ -61,6 +62,27 @@ function App() {
     fetchTodos();
   }, []);
 
+  // TODO DELETE
+  const deleteTodo = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#1e3d59",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const todoDB = getLocalStorage(todo_ls_name);
+        const new_Todo_database = todoDB.filter((todo) => todo.id !== id);
+        setLocalStorage(todo_ls_name, new_Todo_database);
+        fetchTodos();
+        Swal.fire("Deleted!", "Your todo has been deleted.", "success");
+      }
+    });
+  };
+
   return (
     <div className="bg-[#F5F5F5] min-h-screen">
       <header className="px-5 py-4 mx-auto max-w-lg">
@@ -99,7 +121,9 @@ function App() {
         )}
         {/* <section id="todoList" className="flex flex-col gap-3 pb-10 mt-5" /> */}
         {!isLoadingTodos && todos.length === 0 && (
-          <h1 class="text-gray-900">Please add task......</h1>
+          <h1 class="text-gray-500 font-semibold font-mono">
+            No todo yet, Please add todo......
+          </h1>
         )}
         {isLoadingTodos ? (
           <section className="flex flex-col justify-center items-center">
@@ -115,6 +139,7 @@ function App() {
                   created_at={created_at}
                   exactTime={exactTime}
                   key={id}
+                  deleteTodo={deleteTodo}
                 />
               );
             })}

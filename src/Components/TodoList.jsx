@@ -3,7 +3,7 @@ import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 
 const TodoList = (props) => {
-  const { title, id, created_at } = props;
+  const { title, id, created_at, deleteTodo } = props;
   return (
     <div className="bg-[#FFF] group flex justify-between py-3 px-3 rounded-lg hover:bg-gray-300">
       <a href={`/${id}`} className="truncate">
@@ -17,10 +17,7 @@ const TodoList = (props) => {
         >
           <FaEdit />
         </button>
-        <button
-          //   onclick="deleteTodo('${todo.id}')"
-          className="text-red-600"
-        >
+        <button onClick={() => deleteTodo(id)} className="text-red-600">
           <MdDelete />
         </button>
       </section>
