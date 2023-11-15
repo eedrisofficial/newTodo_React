@@ -8,6 +8,8 @@ import Swal from "sweetalert2";
 const todo_ls_name = process.env.REACT_APP_TODO_LOCAL_STORAGE_NAME;
 
 function App() {
+  const [todoIdToUpdate, setTodoIdToUpdate] = useState(null);
+  const [isEditMode, setisEditMode] = useState(false);
   const [isLoadingTodos, setIsLoadingTodos] = useState(true);
   const [todos, setTodos] = useState([]);
   const [todoInput, setTodoInput] = useState("");
@@ -25,13 +27,13 @@ function App() {
         isError: true,
         errorMessage: "Please write a todo...",
       });
-
       setTimeout(() => {
         setFormError({
           isError: false,
           errorMessage: null,
         });
       }, 5000);
+      return;
     }
 
     const newTodo = {
@@ -83,6 +85,43 @@ function App() {
     });
   };
 
+  // TODO EDITING & UPDATING
+  const editingTodo = (id) => {
+    setisEditMode(true);
+    setTodoIdToUpdate(id);
+    const todoDB = getLocalStorage(todo_ls_name);
+    const todoToEdit = todoDB.find((todo) => todo.id === id);
+    setTodoInput(todoToEdit.title);
+  };
+
+  const updatedTodo = (event) => {
+    event.preventDefault();
+
+    if (!todoInput) {
+      setFormError({
+        isError: true,
+        errorMessage: "TodoList Tittle cannot be empty",
+      });
+      setTimeout(() => {
+        setFormError(false);
+      }, 3000);
+      return;
+    }
+
+    const todoDB = getLocalStorage(todo_ls_name);
+    const updated_database = todoDB.map((todo) => {
+      if (todo.id === todoIdToUpdate) {
+        return { ...todo, title: todoInput };
+      } else {
+        return todo;
+      }
+    });
+    setLocalStorage(todo_ls_name, updated_database);
+    fetchTodos();
+    setTodoInput("");
+    setisEditMode(false);
+  };
+
   return (
     <div className="bg-[#F5F5F5] min-h-screen">
       <header className="px-5 py-4 mx-auto max-w-lg">
@@ -100,18 +139,23 @@ function App() {
               placeholder="What are you doing today?"
               className=" border-2 p-1 w-full border-black rounded-lg outline-none focus:border-red-400"
             />
-            <button
-              onClick={addTodo}
-              className="bg-[#1e3d59] w-[50%] lg:w-[20%] p-1 py-2 font-bold text-[#FFF] rounded-lg hover:bg-red-400 duration-500"
-            >
-              Add
-            </button>
-            <button
-              // onClick="updatedTodo(event)"
-              className="hidden bg-[#1e847f] w-[50%] lg:w-[20%] p-1 py-2 font-bold text-[#FFF] rounded-lg hover:bg-[#316879] duration-500"
-            >
-              Update
-            </button>
+            {isEditMode ? (
+              <button
+                type="submit"
+                onClick={updatedTodo}
+                className=" bg-[#1e847f] w-[50%] lg:w-[20%] p-1 py-2 font-bold text-[#FFF] rounded-lg hover:bg-[#316879] duration-500 focus:border-red-400"
+              >
+                Update
+              </button>
+            ) : (
+              <button
+                type="submit"
+                onClick={addTodo}
+                className="bg-[#1e3d59] w-[50%] lg:w-[20%] p-1 py-2 font-bold text-[#FFF] rounded-lg hover:bg-red-400 duration-500"
+              >
+                Add
+              </button>
+            )}
           </div>
         </form>
         {formError.isError && (
@@ -140,6 +184,7 @@ function App() {
                   exactTime={exactTime}
                   key={id}
                   deleteTodo={deleteTodo}
+                  editingTodo={editingTodo}
                 />
               );
             })}
