@@ -1,14 +1,15 @@
 import React from "react";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import { Link } from "react-router-dom";
 
 const TodoList = (props) => {
   const { title, id, created_at, deleteTodo, editingTodo } = props;
   return (
     <div className="bg-[#FFF] group flex justify-between py-3 px-3 rounded-lg hover:bg-gray-300">
-      <a href={`/${id}`} className="truncate">
+      <Link to={`/todo/${id}`} className="truncate">
         {title}
-      </a>
+      </Link>
       <p>{created_at}</p>
       <section className="gap-4 hidden group-hover:flex">
         <button onClick={() => editingTodo(id)} className="text-[#1e847f]">
